@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { AuthSignupDto } from './dtos/auth-signup.dto';
 import { AuthLoginDto } from './dtos/auth-login.dto';
 import { JwtPayload } from './dtos/jwt-payload';
+import { ValidateUser } from '../utils';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,7 @@ export class AuthService {
         private jwtService: JwtService,
     ) {}
 
-    async validateUser(email: string): Promise<UserModel | null> {
+    async validateUser(email: string): Promise<ValidateUser | null> {
         const user = await this.userService.getUserByEmail(email);
         if (user) {
             return user;
@@ -27,6 +28,7 @@ export class AuthService {
         if(!user) throw new NotFoundException('No such user found');
 
         const valid = await bcrypt.compare(data.password, user.password)
+        
         if (!valid) throw new BadRequestException('Invalid password');
         const payload: JwtPayload = { email: user.email, sub: user.id };
 
